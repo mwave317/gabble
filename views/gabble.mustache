@@ -1,0 +1,19 @@
+<html>
+  <head>
+    <title>Gabble</title>
+    <link rel="stylesheet" href="../../css/styles.css">
+  </head>
+<body>
+  <form method="post" action="/logout">
+  <a href="./logout">Log out</a>
+</form>
+<form method='post' action='/gabble'>
+  <h3>Create a new gab</h3>
+  <textarea cols="50" rows="10" name="body" placeholder="Send out a gabble"></textarea>
+  <input type="submit" value="publish gab">
+</form>
+<section>
+<p>{{#messages}}{{body}}{{userid}}{{createdAt}}{{/messages}}<p>
+</section>
+</body>
+</html>

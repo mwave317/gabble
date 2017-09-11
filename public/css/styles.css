@@ -1,0 +1,9 @@
+main {
+  border: 3px solid blue;
+  padding: 5%;
+  margin: 20%;
+}
+
+input {
+  width: 90%;
+}

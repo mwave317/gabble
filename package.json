@@ -1,0 +1,29 @@
+{
+  "name": "gabble",
+  "version": "1.0.0",
+  "description": "\"Gabble messaging service\"",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mwave317/gabble.git"
+  },
+  "author": "Ken Coppola",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mwave317/gabble/issues"
+  },
+  "homepage": "https://github.com/mwave317/gabble#readme",
+  "dependencies": {
+    "bcrypt": "^1.0.3",
+    "express": "^4.15.4",
+    "express-session": "^1.15.5",
+    "express-validator": "^4.1.1",
+    "mustache-express": "^1.2.5",
+    "node-validator": "^0.1.27",
+    "pg": "^7.3.0",
+    "sequelize": "^4.8.0"
+  }
+}

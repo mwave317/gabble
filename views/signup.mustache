@@ -1,0 +1,25 @@
+<html>
+    <head>
+      <title>Sign up for Gabble</title>
+      <link rel="stylesheet" href="./css/styles.css">
+    </head>
+  <body>
+    <main>
+    <form method="post" action="/signup">
+    <input type="text" name="username" placeholder="Please enter your username">
+    <input type="password" name="password" placeholder="Please enter a password">
+    <input type="password" name="reenterpassword" placeholder="Pease reenter your password">
+    <input type="text" name="first_name" placeholder="Please enter your first name">
+    <input type="text" name="last_name" placeholder="Please enter your last name">
+    <input type="text" name="address1" placeholder="Please enter your street address">
+    <input type="text" name="address2" placeholder="Plase enter an apartment/suite number">
+    <input type="text" name="city" placeholder="Please enter a city">
+    <select name="states" id="states">
+      {{#states}}<option value="{{value}}">{{state}}</option>{{/states}}
+    </select>
+    <input type="text" name="zipcode" placeholder="Please enter a zipcode" maxlength="5">
+    <input type="submit" value="Sign Up">
+  </form>
+  </main>
+  </body>
+</html>
