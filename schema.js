@@ -67,6 +67,15 @@ const Message = db.define('message',{
 body: {
   type: Sequelize.STRING(140),
 },
+total_likes: {
+  type: Sequelize.INTEGER,
+},
+total_dislikes: {
+  type: Sequelize.INTEGER,
+},
+createdAt: {
+  type: Sequelize.DATEONLY,
+}
 });
 const Like = db.define('like',{
   id: {

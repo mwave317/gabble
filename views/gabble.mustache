@@ -7,13 +7,24 @@
   <form method="post" action="/logout">
   <a href="./logout">Log out</a>
 </form>
+<form method="post" action="/profile">
+  <a href="./profile">View Profile</a>
+</form>
 <form method='post' action='/gabble'>
   <h3>Create a new gab</h3>
   <textarea cols="50" rows="10" name="body" placeholder="Send out a gabble"></textarea>
   <input type="submit" value="publish gab">
 </form>
+
+{{#gabs}}
 <section>
-<p>{{#messages}}{{body}}{{userid}}{{createdAt}}{{/messages}}<p>
+<p>{{body}}</p>
+<p>{{user.username}}</p>
+<p>{{createdAt}}</p>
+<p><a href="/like/?id={{id}}">Like</a>{{total_likes}}</p>
+<p><a href="/dislikes/?id={{id}}">DisLike</a>{{total_dislikes}}</p>
 </section>
+{{/gabs}}<p>
+
 </body>
 </html>

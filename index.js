@@ -29,8 +29,8 @@ server.use(function (req, res, next) {
 });
 
 function createUser(data) {
-  console.log('This is from inside the function');
-  return User.create({ username: data.username.toLowerCase(),
+  //console.log('This is from inside the function');
+  return User.create({ username: data.username,
     password: data.password, first_name: data.first_name, last_name: data.last_name, });
 };
 
@@ -40,12 +40,13 @@ function createAddress(data) {
       username: data.username,
     },
   }).then(function (result) {
-    console.log(result);
+    //console.log(result);
     return Address.create({ address1: data.address1, address2: data.address2,
       city: data.city, state: data.states, zipcode: data.zipcode, })
       .then(function (address) {
       address.setUser(result);
-      console.log('The address was added');
+
+      //console.log('The address was added');
     }).catch(function (err) {
       console.log(err);
     });
@@ -87,17 +88,85 @@ function findUser(data) {
       username: data.username,
     },
   }).then(function (result) {
-    console.log('The user was found and the crowd goes wild');
+    //console.log('The user was found and the crowd goes wild');
     createAddress(data);
     return result;
   });
 };
 
 function createGabble(data, result) {
-  console.log('This is from inside the gabble function');
+  //console.log('This is from inside the gabble function');
   Message.create({ body: data.body, userid: result.id }).then(function () {
-    console.log('The message was created');
-    return returnedData;
+    //console.log('The message was created');
+  });
+};
+
+function createLike(result, data) {
+  Like.create({ messageid: result,
+    userid: data.id, }).then(function () {
+
+      });
+}
+
+function addLikes(data) {
+  Message.findOne({
+    where: {
+      id: data,
+    },
+  }).then(function (message) {
+    Message.update({ total_likes: message.total_likes + 1 }, { where: { id: data } });
+  });
+};
+
+function addDislikes(data) {
+  Message.findOne({
+    where: {
+      id: data,
+    },
+  }).then(function (message) {
+    Message.update({ total_dislikes: message.total_dislikes + 1 }, { where: { id: data } });
+  });
+};
+
+//createLike(req.body, req.session);
+
+function findAllGabbles() {
+  //I need to return the user to have the username
+  return Message.findAll({ include: [User], order: [['id', 'DESC']] });
+};
+
+function findAllPosts(result) { //for profile page
+  return User.findOne({
+    where: {
+      username: result.username,
+    },
+  }).then(function (result) {//this passes the data to the promise
+    //console.log(result);
+    //console.log(result.username);
+    return Message.findAll({
+      include: [User],
+      where: {
+        userid: result.id,
+      },
+    });
+  });
+};
+
+function findAllLikes(result) {
+  return User.findOne({
+    where: {
+      username: result.username,
+    },
+  }).then(function (result) {//this passes the data to the promise
+    //console.log(result);
+    //console.log(result.username);
+    return Like.findAll({
+      include: [User, Message],
+      where: {
+        messageid: result.messageid,
+      },
+
+    });
   });
 };
 
@@ -310,7 +379,7 @@ server.get('/login', function (req, res) {
 
 server.post('/login', function (req, res) {
   //checkUserInput(req.body);
-  //console.log(checkUserInput(req.body));
+  // console.log(checkUserInput(req.body));
   findUserId(req.body).then(function (result) {
     console.log(result);
     if (result.username === null || result.password === null) {
@@ -325,12 +394,46 @@ server.post('/login', function (req, res) {
 });
 
 server.get('/gabble', function (req, res) {
-  res.render('gabble');
+  findAllGabbles().then(function (gabbles) {
+    console.log(gabbles);
+      res.render('gabble', {
+        gabs: gabbles,
+      });
+    });
+
+  findAllLikes(req.session.user);
+
+});
+
+server.get('/profile', function (req, res) {
+  findAllPosts(req.session.user).then(function (result) {
+      //console.log(result);
+      res.render('profile', {
+        result: result,
+      });
+    });
+
+  //console.log('Did this work');
 });
 
 server.post('/gabble', function (req, res) {
   createGabble(req.body, req.session.user);
-  res.render('gabble');
+  res.redirect('/gabble');
+});
+
+server.get('/like/', function (req, res) {
+  createLike(req.query.id, req.session.user);
+  addLikes(req.query.id);
+
+  // call a function that updates the like column in the message table
+  res.redirect('/gabble');
+});
+
+server.get('/dislikes/', function (req, res) {
+  addDislikes(req.query.id);
+
+  // call a function that updates the like column in the message table
+  res.redirect('/gabble');
 });
 
 server.get('/logout', function (req, res) {
