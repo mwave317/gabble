@@ -21,10 +21,19 @@
 <p>{{body}}</p>
 <p>{{user.username}}</p>
 <p>{{createdAt}}</p>
-<p><a href="/like/?id={{id}}">Like</a>{{total_likes}}</p>
-<p><a href="/dislikes/?id={{id}}">DisLike</a>{{total_dislikes}}</p>
+<p><a href="/like/?id={{id}}">Like: </a>{{total_likes}}</p>
+<a href="./alllikes/?id={{id}}">All Likes</a>
+<p><a href="/dislikes/?id={{id}}">DisLike: </a>{{total_dislikes}}</p>
+<form method="post" action="/replie/">
+<input type="submit" name="comment" value = "Leave a comment">
+</form>
+<form method='post' class="replies" action='/replie/{{id}}'>
+  <h3>Reply to a Gabble</h3>
+  <textarea cols="50" rows="10" name="reply_body" placeholder="Rely to a Gabble"></textarea>
+  <input type="submit" value="publish reply">
+</form>
+
 </section>
 {{/gabs}}<p>
-
 </body>
 </html>

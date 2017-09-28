@@ -53,26 +53,6 @@ function createAddress(data) {
   });
 };
 
-// function checkUserInput(data) {
-//   let check = ['<', ';', '&&',  '&', '|', '>', '`', '/', ',', '(', ')',
-//        '{', '}', '#', '!', '*', '%', '$', '^', '[', ']', '~'];
-//   for (let i = 0; i < data.username.length; i++) {
-//     console.log('Inside the data loop');
-//     for (let j = 0; j < check.length; j++) {
-//       console.log('inside check loop');
-//       if (data[i] === check [j]) {
-//         console.log('It worked!');
-//         console.log(data[i].value);
-//         console.log(data.body);
-//         console.log(check[j].value);
-//       }
-//     }
-//
-//   }
-//
-//   return findUserId(data);
-// };
-
 function findUserId(data) {
   return User.findOne({
     where: {
@@ -101,10 +81,19 @@ function createGabble(data, result) {
   });
 };
 
+function createReply(data, result, params) {
+  //console.log('This is from inside the gabble function');
+  Replie.create({ include: [User, Message],
+    body: data.reply_body,
+    userid: result.id,
+    messageid: params, }).then(function () {
+    console.log('The reply was created');
+  });
+};
+
 function createLike(result, data) {
   Like.create({ messageid: result,
     userid: data.id, }).then(function () {
-
       });
 }
 
@@ -114,7 +103,9 @@ function addLikes(data) {
       id: data,
     },
   }).then(function (message) {
-    Message.update({ total_likes: message.total_likes + 1 }, { where: { id: data } });
+    console.log(message);
+    Message.update({ total_likes: message.total_likes + 1 },
+       { where: { id: data } });
   });
 };
 
@@ -124,7 +115,8 @@ function addDislikes(data) {
       id: data,
     },
   }).then(function (message) {
-    Message.update({ total_dislikes: message.total_dislikes + 1 }, { where: { id: data } });
+    Message.update({ total_dislikes: message.total_dislikes + 1 },
+       { where: { id: data } });
   });
 };
 
@@ -132,7 +124,12 @@ function addDislikes(data) {
 
 function findAllGabbles() {
   //I need to return the user to have the username
-  return Message.findAll({ include: [User], order: [['id', 'DESC']] });
+  return Message.findAll({ include: [User], order: [['id', 'ASC']] });
+};
+
+function findAllGabblesAndLikes() {
+  //I need to return the user to have the username
+  return Like.findAll({ include: [User, Message] });
 };
 
 function findAllPosts(result) { //for profile page
@@ -152,14 +149,28 @@ function findAllPosts(result) { //for profile page
   });
 };
 
+function findOneMessageWithAllLikes(message) {
+  return Message.findOne({
+    where: {
+      id: message,
+    },
+  }).then(function (result) {//this passes the data to the promise
+    return Like.findAll({
+      include: [User, Message],
+      where: {
+        messageid: result.id,
+      },
+
+    });
+  });
+};
+
 function findAllLikes(result) {
   return User.findOne({
     where: {
       username: result.username,
     },
   }).then(function (result) {//this passes the data to the promise
-    //console.log(result);
-    //console.log(result.username);
     return Like.findAll({
       include: [User, Message],
       where: {
@@ -369,7 +380,7 @@ server.post('/signup', function (req, res) {
   createUser(req.body).then(function () {
     return createAddress(req.body);
   }).then(function () {
-    res.render('login');
+    res.redirect('login');
   });
 });
 
@@ -378,10 +389,8 @@ server.get('/login', function (req, res) {
 });
 
 server.post('/login', function (req, res) {
-  //checkUserInput(req.body);
-  // console.log(checkUserInput(req.body));
   findUserId(req.body).then(function (result) {
-    console.log(result);
+    //console.log(result);
     if (result.username === null || result.password === null) {
       res.render('login');
     }
@@ -395,25 +404,31 @@ server.post('/login', function (req, res) {
 
 server.get('/gabble', function (req, res) {
   findAllGabbles().then(function (gabbles) {
-    console.log(gabbles);
       res.render('gabble', {
         gabs: gabbles,
       });
     });
 
   findAllLikes(req.session.user);
+});
 
+server.get('/alllikes/', function (req, res) {
+  // findAllGabblesAndLikes().then(function (gabbles) {
+  findOneMessageWithAllLikes(req.query.id).then(function (gabbles) {
+      console.log(gabbles[0].message.body);
+      res.render('likes', {
+        messageText: gabbles[0].message.body,
+        gabs: gabbles,
+      });
+    });
 });
 
 server.get('/profile', function (req, res) {
   findAllPosts(req.session.user).then(function (result) {
-      //console.log(result);
       res.render('profile', {
         result: result,
       });
     });
-
-  //console.log('Did this work');
 });
 
 server.post('/gabble', function (req, res) {
@@ -421,18 +436,19 @@ server.post('/gabble', function (req, res) {
   res.redirect('/gabble');
 });
 
+server.post('/replie/:id', function (req, res) {
+  createReply(req.body, req.session.user, req.params.id);
+  res.redirect('/gabble');
+});
+
 server.get('/like/', function (req, res) {
   createLike(req.query.id, req.session.user);
   addLikes(req.query.id);
-
-  // call a function that updates the like column in the message table
   res.redirect('/gabble');
 });
 
 server.get('/dislikes/', function (req, res) {
   addDislikes(req.query.id);
-
-  // call a function that updates the like column in the message table
   res.redirect('/gabble');
 });
 
